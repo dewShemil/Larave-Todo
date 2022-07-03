@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -13,17 +15,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return Item::orderBy('created_at',"DESC")->get();
     }
 
     /**
@@ -34,7 +26,10 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $newItem = new Item;
+        $newItem->name = $request->item["name"];
+        $newItem->save();
+        return $newItem;
     }
 
     /**
@@ -43,32 +38,16 @@ class ItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $existingItem = Item::find($id);
+        if ($existingItem) {
+            $existingItem->completed = $request->item["completed"] ? true : false;
+            $existingItem->completed_at = $request->item["completed"] ? Carbon::now() : null;
+            $existingItem->save();
+            return $existingItem;
+        }
+        return "Model Not Found";
     }
 
     /**
@@ -79,6 +58,11 @@ class ItemController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $existingItem = Item::find($id);
+        if($existingItem) {
+            $existingItem->delete();
+            return "Item Successfully Deleted";
+        }
+        return "Model Not Found";
     }
 }
